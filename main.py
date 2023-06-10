@@ -8,9 +8,7 @@ class Players:
         self.score1 = 0
         
     def move(self, player, i):            
-        MOVES = [0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200];
-        player |= MOVES[i];
-        return player;  
+        return player | (1 << i)
     
     def getBit(self, player, bitPosition):
         if bitPosition == None: return
@@ -18,7 +16,7 @@ class Players:
     
     def isPlaced(self, i):
         return (self.getBit(self.player1, i) == 1 or self.getBit(self.player2, i) == 1)
-            
+             
     def checkWinner(self):
         WIN = [448, 56, 7, 292, 146, 73, 84, 273]
         player = self.player1;
@@ -45,7 +43,6 @@ class Field():
         for (i, element) in enumerate(self.pos):
             if (pos[0] > element[0] and pos[0] < element[0]+60) and (pos[1] > element[1] and pos[1] < element[1]+60):
                 return i
-            
 
     def drawMoves(self):
         for i in range(9):
@@ -54,21 +51,18 @@ class Field():
     
     def draw_x(self, square):
         if square == None: return
-        pos = self.pos[square]
-        x = pos[0]; y = pos[1]
+        x, y = self.pos[square]
         for i in range(5):
             pygame.draw.aaline(self.screen,"black",(x+i,y),(x+60,y+60-i))  
             pygame.draw.aaline(self.screen,"black",(x+60,y+i),(x+i,y+60))  
             
     def draw_o(self, square):
         if square == None: return
-        pos = self.pos[square]
-        x = pos[0]; y = pos[1]
+        x, y = self.pos[square]
         for i in range(5):
             pygame.draw.circle(self.screen, "black", [x+30,y+30] , 30)
             
         
-                
 class App(Players, Field):
     def __init__(self) -> None:
         super(Players, self).__init__()
@@ -96,8 +90,10 @@ class App(Players, Field):
                     f = self.inField(pos)
                     # make move 
                     if (f != None and self.isPlaced(f) == False):
-                        if self.counter % 2 == 0: self.player1 = self.move(self.player1, f) 
-                        else:self.player2 = self.move(self.player2, f)
+                        if self.counter % 2 == 0: 
+                            self.player1 = self.move(self.player1, f) 
+                        else:
+                            self.player2 = self.move(self.player2, f)
                         self.counter+=1 
                     self.drawMoves()
                     
